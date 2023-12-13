@@ -1,9 +1,9 @@
 # ----------------------------------------
-# - mode: python - 
-# - author: helloplhm-qwq - 
-# - name: kwdes.py - 
-# - project: lx-music-api-server - 
-# - license: MIT - 
+# - mode: python -
+# - author: helloplhm-qwq -
+# - name: kwdes.py -
+# - project: lx-music-api-server -
+# - license: MIT -
 # ----------------------------------------
 # This file is part of the "lx-music-api-server" project.
 # Do not edit except you know what you are doing.
@@ -18,16 +18,15 @@ import base64
 
 DES_MODE_DECRYPT = 1
 
+# fmt: off
 arrayE = [
     31, 0, DES_MODE_DECRYPT, 2, 3, 4, -1, -1, 3, 4, 5, 6, 7, 8, -1, -1, 7, 8, 9, 10, 11, 12, -1, -1, 11, 12, 13, 14, 15, 16, -1, -
     1, 15, 16, 17, 18, 19, 20, -1, -1, 19, 20, 21, 22, 23, 24, -1, -
     1, 23, 24, 25, 26, 27, 28, -1, -1, 27, 28, 29, 30, 31, 30, -1, -1
 ]
-
 arrayIP = [
     57, 49, 41, 33, 25, 17, 9, DES_MODE_DECRYPT, 59, 51, 43, 35, 27, 19, 11, 3, 61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7, 56, 48, 40, 32, 24, 16, 8, 0, 58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4, 62, 54, 46, 38, 30, 22, 14, 6
 ]
-
 arrayIP_1 = [
     39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61, 29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27, 34, 2, 42, 10, 50, 18, 58, 26, 33, DES_MODE_DECRYPT, 41, 9, 49, 17, 57, 25, 32, 0, 40, 8, 48, 16, 56, 24
 ]
@@ -126,8 +125,9 @@ matrixNSBox = [[
     15,  1,  5, 12,  3, 10, 14,  5,
     8,  7, 11,  0,  4, 13,  2, 11, ],
 ]
+# fmt: on
 
-SECRET_KEY = b'ylzsxkwm'
+SECRET_KEY = b"ylzsxkwm"
 
 
 def bit_transform(arr_int, n, l):
@@ -175,12 +175,14 @@ def DES64(longs, l):
 def sub_keys(l, longs, n):
     l2 = bit_transform(arrayPC_1, 56, l)
     for i in range(16):
-        l2 = ((l2 & arrayLsMask[arrayLs[i]]) << 28 - arrayLs[i] | (l2 & ~arrayLsMask[arrayLs[i]]) >> arrayLs[i])
+        l2 = (l2 & arrayLsMask[arrayLs[i]]) << 28 - arrayLs[i] | (
+            l2 & ~arrayLsMask[arrayLs[i]]
+        ) >> arrayLs[i]
         longs[i] = bit_transform(arrayPC_2, 64, l2)
     j = 0
     while n == 1 and j < 8:
         l3 = longs[j]
-        longs[j], longs[15-j] = longs[15-j], longs[j]
+        longs[j], longs[15 - j] = longs[15 - j], longs[j]
         j += 1
 
 
@@ -189,8 +191,8 @@ def encrypt(msg, key=SECRET_KEY):
         msg = msg.encode()
     if isinstance(key, str):
         key = key.encode()
-    assert (isinstance(msg, bytes))
-    assert (isinstance(key, bytes))
+    assert isinstance(msg, bytes)
+    assert isinstance(key, bytes)
 
     # 处理密钥块
     l = 0
@@ -214,7 +216,7 @@ def encrypt(msg, key=SECRET_KEY):
         arrLong3[i1] = DES64(arrLong1, arrLong2[i1])
 
     # 保存多出来的字节
-    arrByte1 = msg[j*8:]
+    arrByte1 = msg[j * 8 :]
     l2 = 0
     for i1 in range(len(msg) % 8):
         l2 |= arrByte1[i1] << i1 * 8
@@ -226,7 +228,7 @@ def encrypt(msg, key=SECRET_KEY):
     i4 = 0
     for l3 in arrLong3:
         for i6 in range(8):
-            arrByte2[i4] = (255 & l3 >> i6 * 8)
+            arrByte2[i4] = 255 & l3 >> i6 * 8
             i4 += 1
     return arrByte2
 
@@ -235,4 +237,4 @@ def base64_encrypt(msg):
     b1 = encrypt(msg)
     b2 = bytearray(b1)
     s = base64.encodebytes(b2)
-    return s.replace(b'\n', b'').decode()
+    return s.replace(b"\n", b"").decode()

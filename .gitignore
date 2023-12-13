@@ -18,8 +18,7 @@ build
 # project
 cache.db
 data.db
-test.py
-*/test.py
+test.*
 logs
 config.json
 *.log

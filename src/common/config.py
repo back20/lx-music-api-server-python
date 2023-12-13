@@ -18,7 +18,7 @@ from . import variable
 from .log import log
 import threading
 
-logger = log('config_manager')
+logger = log("config_manager")
 
 # 创建线程本地存储对象
 local_data = threading.local()
@@ -26,8 +26,8 @@ local_data = threading.local()
 
 def get_data_connection():
     # 检查线程本地存储对象是否存在连接对象，如果不存在则创建一个新的连接对象
-    if not hasattr(local_data, 'connection'):
-        local_data.connection = sqlite3.connect('data.db')
+    if not hasattr(local_data, "connection"):
+        local_data.connection = sqlite3.connect("data.db")
     return local_data.connection
 
 
@@ -37,8 +37,8 @@ local_cache = threading.local()
 
 def get_cache_connection():
     # 检查线程本地存储对象是否存在连接对象，如果不存在则创建一个新的连接对象
-    if not hasattr(local_cache, 'connection'):
-        local_cache.connection = sqlite3.connect('cache.db')
+    if not hasattr(local_cache, "connection"):
+        local_cache.connection = sqlite3.connect("cache.db")
     return local_cache.connection
 
 
@@ -69,7 +69,7 @@ default = {
         "rate_limit": {
             "global": 0,
             "ip": 0,
-            "desc": "请求速率限制，global为全局，ip为单个ip，填入的值为至少间隔多久才能进行一次请求，单位：秒，不限制请填为0"
+            "desc": "请求速率限制，global为全局，ip为单个ip，填入的值为至少间隔多久才能进行一次请求，单位：秒，不限制请填为0",
         },
         "key": {
             "enable": False,
@@ -143,7 +143,7 @@ default = {
                 "token": "",
                 "userid": "0",
                 "mid": "114514",
-            }
+            },
         },
         "tx": {
             "desc": "QQ音乐相关配置",
@@ -156,7 +156,7 @@ default = {
                 "desc": "用户数据，可以通过浏览器获取，需要vip账号来获取会员歌曲，如果没有请留为空值，qqmusic_key可以从Cookie中/客户端的请求体中（comm.authst）获取",
                 "qqmusic_key": "",
                 "uin": "",
-                "_uin-desc": "key对应的QQ号"
+                "_uin-desc": "key对应的QQ号",
             },
             "cdnaddr": "http://ws.stream.qqmusic.qq.com/",
         },
@@ -164,7 +164,7 @@ default = {
             "desc": "网易云音乐相关配置",
             "user": {
                 "desc": "账号cookie数据，可以通过浏览器获取，需要vip账号来获取会员歌曲，如果没有请留为空值",
-                "cookie": ""
+                "cookie": "",
             },
             "reject_unmatcher_quality": True,
             "_reject_unmatcher_quality-desc": "是否拒绝不匹配的音质（默认拒绝），网易云API在当前环境无法获取该音质时会自动将低音质，开启此功能将拒绝被降级的音质返回",
@@ -185,13 +185,17 @@ default = {
 
 def handle_default_config():
     with open("./config.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(default, indent=2, ensure_ascii=False,
-                escape_forward_slashes=False))
+        f.write(
+            json.dumps(
+                default, indent=2, ensure_ascii=False, escape_forward_slashes=False
+            )
+        )
         f.close()
-        if (not os.getenv('build')):
-            logger.info('首次启动或配置文件被删除，已创建默认配置文件')
+        if not os.getenv("build"):
+            logger.info("首次启动或配置文件被删除，已创建默认配置文件")
             logger.info(
-                f'\n建议您到{variable.workdir + os.path.sep}config.json修改配置后重新启动服务器')
+                f"\n建议您到{variable.workdir + os.path.sep}config.json修改配置后重新启动服务器"
+            )
         return default
 
 
@@ -233,7 +237,8 @@ def save_data(config_data):
         # Insert the new configuration data into the 'data' table
         for key, value in config_data.items():
             cursor.execute(
-                "INSERT INTO data (key, value) VALUES (?, ?)", (key, json.dumps(value)))
+                "INSERT INTO data (key, value) VALUES (?, ?)", (key, json.dumps(value))
+            )
 
         conn.commit()
 
@@ -250,15 +255,14 @@ def getCache(module, key):
         # 创建一个游标对象
         cursor = conn.cursor()
 
-        cursor.execute("SELECT data FROM cache WHERE module=? AND key=?",
-                       (module, key))
+        cursor.execute("SELECT data FROM cache WHERE module=? AND key=?", (module, key))
 
         result = cursor.fetchone()
         if result:
             cache_data = json.loads(result[0])
-            if (not cache_data['expire']):
+            if not cache_data["expire"]:
                 return cache_data
-            if (int(time.time()) < cache_data['time']):
+            if int(time.time()) < cache_data["time"]:
                 return cache_data
     except:
         pass
@@ -274,8 +278,7 @@ def updateCache(module, key, data):
         # 创建一个游标对象
         cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT data FROM cache WHERE module=? AND key=?", (module, key))
+        cursor.execute("SELECT data FROM cache WHERE module=? AND key=?", (module, key))
         result = cursor.fetchone()
         if result:
             cache_data = json.loads(result[0])
@@ -283,14 +286,17 @@ def updateCache(module, key, data):
                 cache_data.update(data)
             else:
                 logger.error(
-                    f"Cache data for module '{module}' and key '{key}' is not a dictionary.")
+                    f"Cache data for module '{module}' and key '{key}' is not a dictionary."
+                )
         else:
             cursor.execute(
-                "INSERT INTO cache (module, key, data) VALUES (?, ?, ?)", (module, key, json.dumps(data)))
+                "INSERT INTO cache (module, key, data) VALUES (?, ?, ?)",
+                (module, key, json.dumps(data)),
+            )
 
         conn.commit()
     except:
-        logger.error('缓存写入遇到错误…')
+        logger.error("缓存写入遇到错误…")
         logger.error(traceback.format_exc())
 
 
@@ -298,13 +304,13 @@ def resetRequestTime(ip):
     config_data = load_data()
     try:
         try:
-            config_data['requestTime'][ip] = 0
+            config_data["requestTime"][ip] = 0
         except KeyError:
-            config_data['requestTime'] = {}
-            config_data['requestTime'][ip] = 0
+            config_data["requestTime"] = {}
+            config_data["requestTime"][ip] = 0
         save_data(config_data)
     except:
-        logger.error('配置写入遇到错误…')
+        logger.error("配置写入遇到错误…")
         logger.error(traceback.format_exc())
 
 
@@ -312,20 +318,20 @@ def updateRequestTime(ip):
     try:
         config_data = load_data()
         try:
-            config_data['requestTime'][ip] = time.time()
+            config_data["requestTime"][ip] = time.time()
         except KeyError:
-            config_data['requestTime'] = {}
-            config_data['requestTime'][ip] = time.time()
+            config_data["requestTime"] = {}
+            config_data["requestTime"][ip] = time.time()
         save_data(config_data)
     except:
-        logger.error('配置写入遇到错误...')
+        logger.error("配置写入遇到错误...")
         logger.error(traceback.format_exc())
 
 
 def getRequestTime(ip):
     config_data = load_data()
     try:
-        value = config_data['requestTime'][ip]
+        value = config_data["requestTime"][ip]
     except:
         value = 0
     return value
@@ -333,7 +339,7 @@ def getRequestTime(ip):
 
 def read_data(key):
     config = load_data()
-    keys = key.split('.')
+    keys = key.split(".")
     value = config
     for k in keys:
         if k not in value and keys.index(k) != len(keys) - 1:
@@ -348,7 +354,7 @@ def read_data(key):
 def write_data(key, value):
     config = load_data()
 
-    keys = key.split('.')
+    keys = key.split(".")
     current = config
     for k in keys[:-1]:
         if k not in current:
@@ -363,7 +369,7 @@ def write_data(key, value):
 def push_to_list(key, obj):
     config = load_data()
 
-    keys = key.split('.')
+    keys = key.split(".")
     current = config
     for k in keys[:-1]:
         if k not in current:
@@ -377,12 +383,13 @@ def push_to_list(key, obj):
 
     save_data(config)
 
+
 def write_config(key, value):
     config = None
-    with open('config.json', 'r', encoding='utf-8') as f:
+    with open("config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
 
-    keys = key.split('.')
+    keys = key.split(".")
     current = config
     for k in keys[:-1]:
         if k not in current:
@@ -391,14 +398,15 @@ def write_config(key, value):
 
     current[keys[-1]] = value
     variable.config = config
-    with open('config.json', 'w', encoding='utf-8') as f:
+    with open("config.json", "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
         f.close()
+
 
 def read_default_config(key):
     try:
         config = default
-        keys = key.split('.')
+        keys = key.split(".")
         value = config
         for k in keys:
             if isinstance(value, dict):
@@ -413,13 +421,14 @@ def read_default_config(key):
 
         return value
     except:
-        logger.warning(f'配置文件{key}不存在')
+        logger.warning(f"配置文件{key}不存在")
         return None
+
 
 def _read_config(key):
     try:
         config = variable.config
-        keys = key.split('.')
+        keys = key.split(".")
         value = config
         for k in keys:
             if isinstance(value, dict):
@@ -436,10 +445,11 @@ def _read_config(key):
     except (KeyError, TypeError):
         return None
 
+
 def read_config(key):
     try:
         config = variable.config
-        keys = key.split('.')
+        keys = key.split(".")
         value = config
         for k in keys:
             if isinstance(value, dict):
@@ -455,23 +465,23 @@ def read_config(key):
         return value
     except:
         default_value = read_default_config(key)
-        if (isinstance(default_value, type(None))):
-            logger.warning(f'配置文件{key}不存在')
+        if isinstance(default_value, type(None)):
+            logger.warning(f"配置文件{key}不存在")
         else:
             for i in range(len(keys)):
-                tk = '.'.join(keys[:(i + 1)])
+                tk = ".".join(keys[: (i + 1)])
                 tkvalue = _read_config(tk)
-                logger.debug(f'configfix: 读取配置文件{tk}的值：{tkvalue}')
-                if ((tkvalue is None) or (tkvalue == {})):
+                logger.debug(f"configfix: 读取配置文件{tk}的值：{tkvalue}")
+                if (tkvalue is None) or (tkvalue == {}):
                     write_config(tk, read_default_config(tk))
-                    logger.info(f'配置文件{tk}不存在，已创建')
+                    logger.info(f"配置文件{tk}不存在，已创建")
                     return default_value
 
 
 def write_data(key, value):
     config = load_data()
 
-    keys = key.split('.')
+    keys = key.split(".")
     current = config
     for k in keys[:-1]:
         if k not in current:
@@ -482,16 +492,19 @@ def write_data(key, value):
 
     save_data(config)
 
+
 def initConfig():
     try:
         with open("./config.json", "r", encoding="utf-8") as f:
             try:
                 variable.config = json.loads(f.read())
-                if (not isinstance(variable.config, dict)):
-                    logger.warning('配置文件并不是一个有效的字典，使用默认值')
+                if not isinstance(variable.config, dict):
+                    logger.warning("配置文件并不是一个有效的字典，使用默认值")
                     variable.config = default
                     with open("./config.json", "w", encoding="utf-8") as f:
-                        f.write(json.dumps(variable.config, indent=2, ensure_ascii=False))
+                        f.write(
+                            json.dumps(variable.config, indent=2, ensure_ascii=False)
+                        )
                         f.close()
             except:
                 if os.path.getsize("./config.json") != 0:
@@ -502,78 +515,87 @@ def initConfig():
     except FileNotFoundError:
         variable.config = handle_default_config()
     # print(variable.config)
-    variable.log_length_limit = read_config('common.log_length_limit')
-    variable.debug_mode = read_config('common.debug_mode')
+    variable.log_length_limit = read_config("common.log_length_limit")
+    variable.debug_mode = read_config("common.debug_mode")
     logger.debug("配置文件加载成功")
-    conn = sqlite3.connect('cache.db')
+    conn = sqlite3.connect("cache.db")
 
     # 创建一个游标对象
     cursor = conn.cursor()
 
     # 创建一个表来存储缓存数据
-    cursor.execute('''CREATE TABLE IF NOT EXISTS cache
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS cache
 (id INTEGER PRIMARY KEY AUTOINCREMENT,
 module TEXT NOT NULL,
 key TEXT NOT NULL,
-data TEXT NOT NULL)''')
+data TEXT NOT NULL)"""
+    )
 
     conn.close()
 
-    conn2 = sqlite3.connect('data.db')
+    conn2 = sqlite3.connect("data.db")
 
     # 创建一个游标对象
     cursor2 = conn2.cursor()
 
-    cursor2.execute('''CREATE TABLE IF NOT EXISTS data
+    cursor2.execute(
+        """CREATE TABLE IF NOT EXISTS data
 (key TEXT PRIMARY KEY,
-value TEXT)''')
+value TEXT)"""
+    )
 
     conn2.close()
 
-    logger.debug('数据库初始化成功')
+    logger.debug("数据库初始化成功")
 
     # print
-    if (load_data() == {}):
-        write_data('banList', [])
-        write_data('requestTime', {})
-        logger.info('数据库内容为空，已写入默认值')
+    if load_data() == {}:
+        write_data("banList", [])
+        write_data("requestTime", {})
+        logger.info("数据库内容为空，已写入默认值")
 
     # 处理代理配置
-    if (read_config('common.proxy.enable')):
-        if (read_config('common.proxy.http_value')):
-            os.environ['http_proxy'] = read_config('common.proxy.http_value')
-            logger.info('HTTP协议代理地址: ' + read_config('common.proxy.http_value'))
-        if (read_config('common.proxy.https_value')):
-            os.environ['https_proxy'] = read_config('common.proxy.https_value')
-            logger.info('HTTPS协议代理地址: ' + read_config('common.proxy.https_value'))
-        logger.info('代理功能已开启，请确保代理地址正确，否则无法连接网络')
+    if read_config("common.proxy.enable"):
+        if read_config("common.proxy.http_value"):
+            os.environ["http_proxy"] = read_config("common.proxy.http_value")
+            logger.info("HTTP协议代理地址: " + read_config("common.proxy.http_value"))
+        if read_config("common.proxy.https_value"):
+            os.environ["https_proxy"] = read_config("common.proxy.https_value")
+            logger.info("HTTPS协议代理地址: " + read_config("common.proxy.https_value"))
+        logger.info("代理功能已开启，请确保代理地址正确，否则无法连接网络")
+
 
 def ban_ip(ip_addr, ban_time=-1):
-    if read_config('security.banlist.enable'):
-        banList = read_data('banList')
-        banList.append({
-            'ip': ip_addr,
-            'expire': read_config('security.banlist.expire.enable'),
-            'expire_time': read_config('security.banlist.expire.length') if (ban_time == -1) else ban_time,
-        })
-        write_data('banList', banList)
+    if read_config("security.banlist.enable"):
+        banList = read_data("banList")
+        banList.append(
+            {
+                "ip": ip_addr,
+                "expire": read_config("security.banlist.expire.enable"),
+                "expire_time": read_config("security.banlist.expire.length")
+                if (ban_time == -1)
+                else ban_time,
+            }
+        )
+        write_data("banList", banList)
     else:
-        if (variable.banList_suggest < 10):
+        if variable.banList_suggest < 10:
             variable.banList_suggest += 1
-            logger.warning('黑名单功能已被关闭，我们墙裂建议你开启这个功能以防止恶意请求')
+            logger.warning("黑名单功能已被关闭，我们墙裂建议你开启这个功能以防止恶意请求")
 
 
 def check_ip_banned(ip_addr):
-    if read_config('security.banlist.enable'):
-        banList = read_data('banList')
+    if read_config("security.banlist.enable"):
+        banList = read_data("banList")
         for ban in banList:
-            if (ban['ip'] == ip_addr):
-                if (ban['expire']):
-                    if (ban['expire_time'] > int(time.time())):
+            if ban["ip"] == ip_addr:
+                if ban["expire"]:
+                    if ban["expire_time"] > int(time.time()):
                         return True
                     else:
                         banList.remove(ban)
-                        write_data('banList', banList)
+                        write_data("banList", banList)
                         return False
                 else:
                     return True
@@ -581,9 +603,9 @@ def check_ip_banned(ip_addr):
                 return False
         return False
     else:
-        if (variable.banList_suggest <= 10):
+        if variable.banList_suggest <= 10:
             variable.banList_suggest += 1
-            logger.warning('黑名单功能已被关闭，我们墙裂建议你开启这个功能以防止恶意请求')
+            logger.warning("黑名单功能已被关闭，我们墙裂建议你开启这个功能以防止恶意请求")
         return False
 
 
