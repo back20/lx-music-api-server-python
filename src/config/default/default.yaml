@@ -1,6 +1,6 @@
 common:
   # 开发模式
-  debug_mode: true
+  debug_mode: false
   # 服务器启动时所使用的HOST地址
   host: '0.0.0.0'
   # 服务器启动时所使用的端口
