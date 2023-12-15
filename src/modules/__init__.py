@@ -55,6 +55,7 @@ async def handleApiRequest(command, source, songId, quality):
             "code": 1,
             "msg": "未知的源或命令",
             "data": None,
+            "extra": None,
         }
 
     try:
@@ -80,6 +81,17 @@ async def handleApiRequest(command, source, songId, quality):
     try:
         raw = await func(songId, quality)
         result = CreateObject(raw)
+
+        print(config.config_user.handleGetConfig("common.reject_unmatched_quality"))
+        if config.config_user.handleGetConfig("common.reject_unmatched_quality"):
+            print(result.quality, quality)
+            if result.quality != quality:
+                return {
+                    "code": 7,
+                    "msg": f"获取目标音质[{quality}]失败",
+                    "data": None,
+                    "extra": None,
+                }
 
         logger.debug(f"获取URL成功 [{id}]\nURL: {result.url}")
 

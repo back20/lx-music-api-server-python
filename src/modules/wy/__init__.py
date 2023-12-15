@@ -67,9 +67,6 @@ async def url(songId, quality):
         raise FailedException("failed")
 
     data = body["data"][0]
-    if config.config_user.handleGetConfig("module.wy.reject_unmatched_quality"):
-        if data["level"] != tools["qualityMap"][quality]:
-            raise FailedException("reject unmatched quality")
 
     return {
         "url": data["url"].split("?")[0],

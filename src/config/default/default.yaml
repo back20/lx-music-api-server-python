@@ -7,6 +7,8 @@ common:
   port: '9763'
   # 日志长度限制
   log_length_limit: 500
+  # 拒绝不匹配的音质
+  reject_unmatched_quality: false
   # 代理
   proxy:
     enable: false

@@ -68,6 +68,7 @@ docker inspect lx-music-api-server-python
 | 4    | 服务器内部错误（对应 statuscode 500） |
 | 5    | 请求过于频繁                          |
 | 6    | 参数错误                              |
+| 7    | 获取当前音质失败                              |
 
 接口返回的`statuscode`对应的代码含义
 
