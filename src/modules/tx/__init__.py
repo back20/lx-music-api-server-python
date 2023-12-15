@@ -10,9 +10,9 @@
 from common.exceptions import FailedException
 from common import Httpx
 from common import utils
-from common import config
 from .QMWSign import sign
 import ujson as json
+import config
 
 createObject = utils.CreateObject
 
@@ -52,12 +52,12 @@ tools = createObject(
             "Q000": "dolby",
             "AI00": "master",
         },
-        "key": config.read_config("module.tx.user.qqmusic_key"),
-        "loginuin": config.read_config("module.tx.user.uin"),
-        "guid": config.read_config("module.tx.vkeyserver.guid"),
-        "uin": config.read_config("module.tx.vkeyserver.uin"),
-        "cdnaddr": config.read_config("module.tx.cdnaddr")
-        if config.read_config("module.tx.cdnaddr")
+        "key": config.config_user.handleGetConfig("module.tx.user.token"),
+        "loginuin": config.config_user.handleGetConfig("module.tx.user.uin"),
+        "guid": config.config_user.handleGetConfig("module.tx.vkeyserver.guid"),
+        "uin": config.config_user.handleGetConfig("module.tx.vkeyserver.uin"),
+        "cdnaddr": config.config_user.handleGetConfig("module.tx.cdnaddr")
+        if config.config_user.handleGetConfig("module.tx.cdnaddr")
         else "http://ws.stream.qqmusic.qq.com/",
     }
 )

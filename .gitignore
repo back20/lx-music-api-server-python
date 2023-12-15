@@ -5,8 +5,7 @@
 *.pyo
 *.pyd
 *.pyz
-*/__pycache__/*
-__pycache__/
+__pycache__
 *.egg-info
 *.egg
 
@@ -20,8 +19,9 @@ cache.db
 data.db
 test.*
 logs
+config.yaml
 config.json
-*.log
+/data
 
 # VSCode
 .history

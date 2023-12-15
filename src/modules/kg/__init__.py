@@ -9,8 +9,8 @@
 
 from common.exceptions import FailedException
 from common import utils
-from common import config
 from common import Httpx
+import config
 import ujson as json
 import time
 
@@ -29,18 +29,22 @@ def buildRequestParams(dictionary):
 
 tools = createObject(
     {
-        "signkey": config.read_config("module.kg.client.signatureKey"),
-        "pidversec": config.read_config("module.kg.client.pidversionsecret"),
-        "clientver": config.read_config("module.kg.client.clientver"),
-        "x-router": config.read_config("module.kg.tracker.x-router"),
-        "url": config.read_config("module.kg.tracker.host")
-        + config.read_config("module.kg.tracker.path"),
-        "version": config.read_config("module.kg.tracker.version"),
-        "userid": config.read_config("module.kg.user.userid"),
-        "token": config.read_config("module.kg.user.token"),
-        "mid": config.read_config("module.kg.user.mid"),
-        "extra_params": config.read_config("module.kg.tracker.extra_params"),
-        "appid": config.read_config("module.kg.client.appid"),
+        "signkey": config.config_user.handleGetConfig("module.kg.client.signatureKey"),
+        "pidversec": config.config_user.handleGetConfig(
+            "module.kg.client.pidversionsecret"
+        ),
+        "clientver": config.config_user.handleGetConfig("module.kg.client.clientver"),
+        "x-router": config.config_user.handleGetConfig("module.kg.tracker.x-router"),
+        "url": config.config_user.handleGetConfig("module.kg.tracker.host")
+        + config.config_user.handleGetConfig("module.kg.tracker.path"),
+        "version": config.config_user.handleGetConfig("module.kg.tracker.version"),
+        "userid": config.config_user.handleGetConfig("module.kg.user.userid"),
+        "token": config.config_user.handleGetConfig("module.kg.user.token"),
+        "mid": config.config_user.handleGetConfig("module.kg.user.mid"),
+        "extra_params": config.config_user.handleGetConfig(
+            "module.kg.tracker.extra_params"
+        ),
+        "appid": config.config_user.handleGetConfig("module.kg.client.appid"),
         "qualityHashMap": {
             "128k": "hash_128",
             "320k": "hash_320",

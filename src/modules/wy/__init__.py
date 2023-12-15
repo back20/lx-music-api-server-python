@@ -8,10 +8,10 @@
 # This file is part of the "lx-music-api-server" project.
 
 from common import Httpx
-from common import config
 from common.exceptions import FailedException
 from .encrypt import eapiEncrypt
 import ujson as json
+import config
 
 tools = {
     "qualityMap": {
@@ -32,7 +32,7 @@ tools = {
         "jysky": "sky",
         "jymaster": "master",
     },
-    "cookie": config.read_config("module.wy.user.cookie"),
+    "cookie": config.config_user.handleGetConfig("module.wy.user.cookie"),
 }
 
 
@@ -67,7 +67,7 @@ async def url(songId, quality):
         raise FailedException("failed")
 
     data = body["data"][0]
-    if config.read_config("module.wy.reject_unmatched_quality"):
+    if config.config_user.handleGetConfig("module.wy.reject_unmatched_quality"):
         if data["level"] != tools["qualityMap"][quality]:
             raise FailedException("reject unmatched quality")
 

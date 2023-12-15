@@ -15,12 +15,15 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import TerminalFormatter
 from .utils import filterFileName, addToGlobalNamespace
-from .variable import debug_mode, log_length_limit
+from .variable import debug_mode, log_length_limit, dir_data
 
-if not os.path.exists("logs"):
+LOG_DIR = os.path.join(dir_data, "logs")
+
+
+if not os.path.exists(LOG_DIR):
     try:
-        os.mkdir("logs")
-    except:
+        os.makedirs(LOG_DIR)
+    except Exception:
         pass
 
 
@@ -74,10 +77,12 @@ class log:
         if filename:
             filename = filterFileName(filename)
         else:
-            filename = "./logs/" + module_name + ".log"
+            filename = os.path.join(LOG_DIR, module_name + ".log")
         file_handler = logging.FileHandler(filename, encoding="utf-8")
         file_handler.setFormatter(file_formatter)
-        file_handler_ = logging.FileHandler("./logs/console_full.log", encoding="utf-8")
+        file_handler_ = logging.FileHandler(
+            os.path.join(LOG_DIR, "console_full.log"), encoding="utf-8"
+        )
         file_handler_.setFormatter(file_formatter)
         self._logger.addHandler(file_handler_)
         self._logger.addHandler(file_handler)

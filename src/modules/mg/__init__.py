@@ -7,10 +7,9 @@
 # ----------------------------------------
 # This file is part of the "lx-music-api-server" project.
 
+import config
 from common import Httpx
-from common import config
 from common.exceptions import FailedException
-import traceback
 
 tools = {
     "url": "https://app.c.nf.migu.cn/MIGUM2.0/strategy/listen-url/v2.4?toneFlag=__quality__&songId=__songId__&resourceType=2",
@@ -26,10 +25,10 @@ tools = {
         "SQ": "flac",
         "ZQ": "flac24bit",
     },
-    "token": config.read_config("module.mg.user.token"),
-    "aversionid": config.read_config("module.mg.user.aversionid"),
-    "useragent": config.read_config("module.mg.user.useragent"),
-    "osversion": config.read_config("module.mg.user.osversion"),
+    "token": config.config_user.handleGetConfig("module.mg.user.token"),
+    "aversionid": config.config_user.handleGetConfig("module.mg.user.aversionid"),
+    "useragent": config.config_user.handleGetConfig("module.mg.user.useragent"),
+    "osversion": config.config_user.handleGetConfig("module.mg.user.osversion"),
 }
 
 

@@ -1,0 +1,116 @@
+common:
+  # 开发模式
+  debug_mode: true
+  # 服务器启动时所使用的HOST地址
+  host: '0.0.0.0'
+  # 服务器启动时所使用的端口
+  port: '9763'
+  # 日志长度限制
+  log_length_limit: 500
+  # 代理
+  proxy:
+    enable: false
+    http_addr: 'http://127.0.0.1:7890'
+    https_addr: 'https://127.0.0.1:7890'
+
+module:
+  # 酷狗音乐相关配置
+  kg:
+    # 客户端请求配置，不懂请保持默认，修改请统一为字符串格式
+    client:
+      # 酷狗音乐的appid，官方安卓为1005，官方PC为1001
+      appid: '1005'
+      # 客户端versioncode，pidversionsecret可能随此值而变化
+      clientver: '12029'
+      # 获取URL时所用的key值计算验证值
+      pidversionsecret: '57ae12eb6890223e355ccfcb74edf70d'
+      # 客户端signature采用的key值，需要与appid对应
+      signatureKey: 'OIlwieks28dk2k092lksi2UIkp'
+    # trackerapi请求配置，不懂请保持默认，修改请统一为字符串格式
+    tracker:
+      # 自定义添加的param，优先级大于默认，填写类型为普通的JSON数据，会自动转换为请求param
+      extra_params: {}
+      # API地址
+      host: 'https://gateway.kugou.com'
+      # API路径
+      path: '/v5/url'
+      # API版本
+      version: 'v5'
+      # 当host为gateway.kugou.com时需要追加此头，为tracker类地址时则不需要
+      x-router:
+        # 是否开启
+        enable: true
+        # 值
+        value: 'tracker.kugou.com'
+    # 此处内容请统一抓包获取，需要vip账号来获取会员歌曲，如果没有请留为空值，mid必填，可以瞎填一段数字,
+    user:
+      mid: ''
+      token: ''
+      userid: ''
+
+  # 咪咕音乐相关配置
+  mg:
+    # 研究不深，后两项自行抓包获取，在header里
+    user:
+      aversionid: ''
+      osversion: '10'
+      token: ''
+      useragent: 'Mozilla / 5.0 (Windows NT 10.0; Win64; x64) AppleWebKit / 537.36 (KHTML, like Gecko) Chrome / 89.0.4389.82 Safari / 537.36'
+
+  # QQ音乐相关配置
+  tx:
+    cdnaddr: 'http://ws.stream.qqmusic.qq.com/'
+    # 用户数据，可以通过浏览器获取，需要vip账号来获取会员歌曲，如果没有请留为空值，token可以从Cookie中/客户端的请求体中（comm.authst）获取
+    user:
+      # token
+      token: ''
+      # key对应的QQ号
+      uin: ''
+    # 请求官方api时使用的guid，uin等信息，不需要与cookie中信息一致
+    vkeyserver:
+      guid: '0'
+      uin: '0'
+
+  # 网易云音乐相关配置
+  wy:
+    # 账号cookie数据，可以通过浏览器获取，需要vip账号来获取会员歌曲，如果没有请留为空值
+    user:
+      cookie: ''
+
+security:
+  # HOST允许列表，启用后只允许列表内的HOST访问服务器，不需要加端口号
+  allowed_host:
+    # 当用户访问的HOST并不在允许列表中时是否将请求IP加入黑名单，长度单位：秒
+    blacklist:
+      enable: false
+      length: 0
+    enable: false
+    list: ['localhost', '0.0.0.0', '127.0.0.1']
+
+  # 是否启用黑名单（全局设置，关闭后已存储的值并不受影响，但不会再检查）
+  banlist:
+    desc: ''
+    enable: true
+    # 是否启用黑名单IP过期（关闭后其他地方的配置会失效）
+    expire:
+      enable: true
+      length: 604800
+
+  # lxm请求头不存在或不匹配时是否将用户IP加入黑名单
+  lxm_ban: true
+  # 是否检查lxm请求头（正常的LX Music请求时都会携带这个请求头）
+  check_lxm: false
+
+  # 是否开启请求key，开启后只有请求头中包含key，且值一样时可以访问API
+  key:
+    ban: true
+    enable: false
+    value: '114514'
+
+  # 请求速率限制，global为全局，ip为单个ip，填入的值为至少间隔多久才能进行一次请求，单位：秒，不限制请填为0
+  rate_limit:
+    global: 0
+    ip: 0
+
+  # 强制白名单HOST，不需要加端口号（即不受其他安全设置影响的HOST）
+  whitelist_host: ['localhost', '0.0.0.0', '127.0.0.1']

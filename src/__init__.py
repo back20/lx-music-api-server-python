@@ -1,5 +1,4 @@
 from aiohttp import web
-from common import config
 from common import lxsecurity
 from common import utils
 from common import log
@@ -7,6 +6,7 @@ from common import Httpx
 from modules import handleApiRequest
 import traceback
 import time
+import config
 
 logger = log.log("main")
 aiologger = log.log("aiohttp_web")
@@ -25,26 +25,30 @@ async def handle_before_request(app, handler):
             return utils.handleResult({"code": 1, "msg": "您的IP已被封禁", "data": None}, 403)
         # check global rate limit
         if (time.time() - config.getRequestTime("global")) < (
-            config.read_config("security.rate_limit.global")
+            config.config_user.handleGetConfig("security.rate_limit.global")
         ):
             return utils.handleResult({"code": 5, "msg": "全局限速", "data": None}, 429)
         if (time.time() - config.getRequestTime(request.remote)) < (
-            config.read_config("security.rate_limit.ip")
+            config.config_user.handleGetConfig("security.rate_limit.ip")
         ):
             return utils.handleResult({"code": 5, "msg": "IP限速", "data": None}, 429)
         # update request time
         config.updateRequestTime("global")
         config.updateRequestTime(request.remote)
         # check host
-        if config.read_config("security.allowed_host.enable"):
-            if request.remote_host.split(":")[0] not in config.read_config(
-                "security.allowed_host.list"
-            ):
-                if config.read_config("security.allowed_host.blacklist.enable"):
+        if config.config_user.handleGetConfig("security.allowed_host.enable"):
+            if request.remote_host.split(":")[
+                0
+            ] not in config.config_user.handleGetConfig("security.allowed_host.list"):
+                if config.config_user.handleGetConfig(
+                    "security.allowed_host.blacklist.enable"
+                ):
                     config.ban_ip(
                         request.remote,
                         int(
-                            config.read_config("security.allowed_host.blacklist.length")
+                            config.config_user.handleGetConfig(
+                                "security.allowed_host.blacklist.length"
+                            )
                         ),
                     )
                 return utils.handleResult(
@@ -79,21 +83,23 @@ async def handle(request):
     source = request.match_info.get("source")
     songId = request.match_info.get("songId")
     quality = request.match_info.get("quality")
-    if config.read_config("security.key.enable") and request.host.split(":")[
-        0
-    ] not in config.read_config("security.whitelist_host"):
-        if (request.headers.get("X-Request-Key")) != config.read_config(
+    if config.config_user.handleGetConfig("security.key.enable") and request.host.split(
+        ":"
+    )[0] not in config.config_user.handleGetConfig("security.whitelist_host"):
+        if (request.headers.get("X-Request-Key")) != config.config_user.handleGetConfig(
             "security.key.value"
         ):
-            if config.read_config("security.key.ban"):
+            if config.config_user.handleGetConfig("security.key.ban"):
                 config.ban_ip(request.remote)
             return utils.handleResult({"code": 1, "msg": "key验证失败", "data": None}, 403)
-    if config.read_config("security.check_lxm.enable") and request.host.split(":")[
-        0
-    ] not in config.read_config("security.whitelist_host"):
+    if config.config_user.handleGetConfig(
+        "security.check_lxm.enable"
+    ) and request.host.split(":")[0] not in config.config_user.handleGetConfig(
+        "security.whitelist_host"
+    ):
         lxm = request.headers.get("lxm")
         if not lxsecurity.checklxmheader(lxm, request.url):
-            if config.read_config("security.lxm_ban.enable"):
+            if config.config_user.handleGetConfig("security.lxm_ban.enable"):
                 config.ban_ip(request.remote)
         return utils.handleResult({"code": 1, "msg": "lxm请求头验证失败", "data": None}, 403)
 
@@ -124,8 +130,8 @@ if __name__ == "src":
     try:
         web.run_app(
             app,
-            host=config.read_config("common.host"),
-            port=int(config.read_config("common.port")),
+            host=config.config_user.handleGetConfig("common.host"),
+            port=int(config.config_user.handleGetConfig("common.port")),
         )
     except Exception as e:
         logger.error("服务器启动失败, 请查看下方日志")

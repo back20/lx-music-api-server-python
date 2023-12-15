@@ -16,8 +16,8 @@ import ujson as json
 import re
 import time
 import pickle
+import config
 from . import log
-from . import config
 from . import utils
 from . import variable
 
@@ -102,7 +102,7 @@ def request(url, options={}):
         options.pop("cache-ignore")
     cache_key = utils.createMD5(cache_key)
     if options.get("cache") and options["cache"] != "no-cache":
-        cache = config.getCache("httpx", cache_key)
+        cache = config.db_cache.handleGetCache("httpx", cache_key)
         if cache:
             logger.debug(f"请求 {url} 有可用缓存")
             return pickle.loads(utils.createBase64Decode(cache["data"]))
@@ -178,7 +178,7 @@ def request(url, options={}):
         expire_time = (cache_info if isinstance(cache_info, int) else 3600) + int(
             time.time()
         )
-        config.updateCache(
+        config.db_cache.handleUpdateCache(
             "httpx",
             cache_key,
             {
@@ -198,7 +198,7 @@ def checkcn():
         body = utils.CreateObject(req.json())
         variable.iscn = bool(body.flag)
         if not variable.iscn:
-            variable.fakeip = config.read_config("common.fakeip")
+            variable.fakeip = config.config_user.handleGetConfig("common.fakeip")
             logger.info(f"您在非中国大陆服务器({body.country})上启动了项目，已自动开启ip伪装")
             logger.warning(
                 "此方式无法解决咪咕音乐的链接获取问题，您可以配置代理，服务器地址可在下方链接中找到\nhttps://hidemy.io/cn/proxy-list/?country=CN#list"
@@ -232,7 +232,7 @@ async def asyncrequest(url, options={}):
         options.pop("cache-ignore")
     cache_key = utils.createMD5(cache_key)
     if options.get("cache") and options["cache"] != "no-cache":
-        cache = config.getCache("httpx", cache_key)
+        cache = config.db_cache.handleGetCache("httpx", cache_key)
         if cache:
             logger.debug(f"请求 {url} 有可用缓存")
             return pickle.loads(utils.createBase64Decode(cache["data"]))

@@ -14,11 +14,16 @@ import builtins
 import base64
 import zlib
 import re
+import sys
 import ujson as json
 import xmltodict
 from urllib.parse import quote
 from hashlib import md5 as handleCreateMD5
 from aiohttp.web import Response
+
+
+def handleExit(code=None):
+    sys.exit(code)
 
 
 def createBase64Encode(data_bytes):

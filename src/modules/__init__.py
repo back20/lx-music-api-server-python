@@ -9,104 +9,112 @@
 # Do not edit except you konw what you are doing.
 
 from common.exceptions import FailedException
-from common.utils import require
+from common.utils import require, CreateObject
 from common import log
-from common import config
-from . import kw
-from . import mg
-from . import kg
-from . import tx
-from . import wy
+import config
 import traceback
 import time
 
-logger = log.log('api_handler')
+from . import kg
+from . import kw
+from . import tx
+from . import wy
+from . import mg
+
+logger = log.log("api_handler")
 
 sourceExpirationTime = {
-    'tx': {
+    "tx": {
         "expire": True,
         "time": 15 * 60 * 60,  # 15 hours
     },
-    'kg': {
+    "kg": {
         "expire": True,
         "time": 15 * 60 * 60,  # 15 hours
     },
-    'kw': {
-        "expire": True,
-        "time": 30 * 60  # 30 minutes
-    },
-    'wy': {
+    "kw": {"expire": True, "time": 30 * 60},  # 30 minutes
+    "wy": {
         "expire": True,
         "time": 10 * 60,  # 10 minutes
     },
-    'mg': {
+    "mg": {
         # no expiration
         "expire": False,
         "time": 0,
-    }
-
+    },
 }
 
 
 async def handleApiRequest(command, source, songId, quality):
+    id = f"{source}_{songId}_{quality}"
+
     try:
-        cache = config.getCache('urls', f'{source}_{songId}_{quality}')
+        func = require("modules." + source + "." + command)
+    except:
+        return {
+            "code": 1,
+            "msg": "未知的源或命令",
+            "data": None,
+        }
+
+    try:
+        cache = config.db_cache.handleGetCache("urls", id)
         if cache:
-            logger.debug(f'使用缓存的{source}_{songId}_{quality}数据，URL：{cache["url"]}')
+            result = CreateObject(cache)
+            logger.debug(f"使用缓存 [{source}_{songId}_{quality}]\nURL: {result.url}")
             return {
-                'code': 0,
-                'msg': 'success',
-                'data': {
-                    'url': cache['url'],
-                    'cache': True,
-                    'quality': {
-                        'target': quality,
-                        'result': quality,
-                    }
+                "code": 0,
+                "msg": "success",
+                "data": {
+                    "url": result.url,
+                    "cache": True,
+                    "quality": {
+                        "target": quality,
+                        "result": quality,
+                    },
                 },
             }
     except:
         logger.error(traceback.format_exc())
-    try:
-        func = require('modules.' + source + '.' + command)
-    except:
-        return {
-            'code': 1,
-            'msg': '未知的源或命令',
-            'data': None,
-        }
-    try:
-        result = await func(songId, quality)
-        logger.debug(f'获取{source}_{songId}_{quality}成功，URL：{result['url']}')
 
-        canExpire = sourceExpirationTime[source]['expire']
-        expireTime = sourceExpirationTime[source]['time'] + int(time.time())
-        config.updateCache('urls', f'{source}_{songId}_{quality}', {
-            "expire": canExpire,
-            "time": expireTime,
-            "url": result['url'],
-            })
-        logger.debug(f'缓存已更新：{source}_{songId}_{quality}, URL：{result['url']}, expire: {expireTime}')
+    try:
+        raw = await func(songId, quality)
+        result = CreateObject(raw)
+
+        logger.debug(f"获取URL成功 [{id}]\nURL: {result.url}")
+
+        canExpire = sourceExpirationTime[source]["expire"]
+        expireTime = sourceExpirationTime[source]["time"] + int(time.time())
+        config.db_cache.handleUpdateCache(
+            "urls",
+            id,
+            {
+                "expire": canExpire,
+                "time": expireTime,
+                "url": result.url,
+            },
+        )
+        logger.debug(f"缓存更新 [{id}]\nURL: {result.url}\nexpire: {expireTime}")
 
         return {
-            'code': 0,
-            'msg': 'success',
-            'data': {
-                'url': result['url'],
-                'cache': False,
-                'quality': {
-                    'target': quality,
-                    'result': result['quality'],
+            "code": 0,
+            "msg": "success",
+            "data": {
+                "url": result.url,
+                "cache": False,
+                "quality": {
+                    "target": quality,
+                    "result": result["quality"],
                 },
-                'expire': {
-                    'time': expireTime,
-                    'canExpire': canExpire,
+                "expire": {
+                    "time": expireTime,
+                    "canExpire": canExpire,
                 },
             },
         }
     except FailedException as e:
         return {
-            'code': 2,
-            'msg': e.args[0],
-            'data': None,
+            "code": 2,
+            "msg": e.args[0],
+            "data": None,
         }
