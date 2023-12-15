@@ -65,8 +65,8 @@ async def handleApiRequest(command, source, songId, quality):
             return {
                 "code": 0,
                 "msg": "success",
-                "data": {
-                    "url": result.url,
+                "data": result.url,
+                "extra": {
                     "cache": True,
                     "quality": {
                         "target": quality,
@@ -99,8 +99,8 @@ async def handleApiRequest(command, source, songId, quality):
         return {
             "code": 0,
             "msg": "success",
-            "data": {
-                "url": result.url,
+            "data": result.url,
+            "extra": {
                 "cache": False,
                 "quality": {
                     "target": quality,
@@ -113,8 +113,4 @@ async def handleApiRequest(command, source, songId, quality):
             },
         }
     except FailedException as e:
-        return {
-            "code": 2,
-            "msg": e.args[0],
-            "data": None,
-        }
+        return {"code": 2, "msg": e.args[0], "data": None, "extra": None}
