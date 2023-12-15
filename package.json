@@ -1,0 +1,9 @@
+{
+  "name": "lx-music-api-server-python",
+  "description": "LX Music Api Server",
+  "version": "1.2.0-beta.1",
+  "scripts": {
+    "dev": "python main.py --env development",
+    "prod": "python main.py --env production"
+  }
+}
