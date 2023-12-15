@@ -34,6 +34,29 @@ python main.py # 启动服务
 
 对于 release 的部署和上方类似，这里不再赘述
 
+### Poetry 部署
+
+环境要求: Python 3.8+
+
+1. 安装 poetry
+
+```bash
+pip install poetry
+```
+
+2. 安装依赖
+
+```bash
+poetry install
+```
+
+3. 启动
+
+```bash
+poetry shell # 进入poetry环境
+python main.py # 运行项目
+```
+
 ### Docker 部署
 
 环境要求：Docker
@@ -68,7 +91,7 @@ docker inspect lx-music-api-server-python
 | 4    | 服务器内部错误（对应 statuscode 500） |
 | 5    | 请求过于频繁                          |
 | 6    | 参数错误                              |
-| 7    | 获取当前音质失败                              |
+| 7    | 获取当前音质失败                      |
 
 接口返回的`statuscode`对应的代码含义
 
