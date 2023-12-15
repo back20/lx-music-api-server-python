@@ -15,9 +15,9 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import TerminalFormatter
 from .utils import filterFileName, addToGlobalNamespace
-from .variable import debug_mode, log_length_limit, dir_data
+from . import variable
 
-LOG_DIR = os.path.join(dir_data, "logs")
+LOG_DIR = os.path.join(variable.dir_data, "logs")
 
 
 if not os.path.exists(LOG_DIR):
@@ -55,7 +55,7 @@ class log:
         self._logger = logging.getLogger(module_name)
         if not output_level.upper() in dir(logging):
             raise NameError("Unknown loglevel: " + output_level)
-        if not debug_mode:
+        if not variable.debug_mode:
             self._logger.setLevel(getattr(logging, output_level.upper()))
         else:
             self._logger.setLevel(logging.DEBUG)
@@ -106,8 +106,8 @@ class log:
                 else:
                     self._logger.info(m)
             return
-        if len(str(message)) > log_length_limit and allow_hidden:
-            message = str(message)[:log_length_limit] + "..."
+        if len(str(message)) > variable.log_length_limit and allow_hidden:
+            message = str(message)[: variable.log_length_limit] + "..."
         self._logger.debug(message)
 
     def log(self, message, allow_hidden=True):
@@ -120,8 +120,8 @@ class log:
                 else:
                     self._logger.info(m)
             return
-        if len(str(message)) > log_length_limit and allow_hidden:
-            message = str(message)[:log_length_limit] + "..."
+        if len(str(message)) > variable.log_length_limit and allow_hidden:
+            message = str(message)[: variable.log_length_limit] + "..."
         self._logger.info(message)
 
     def info(self, message, allow_hidden=True):
@@ -134,8 +134,8 @@ class log:
                 else:
                     self._logger.info(m)
             return
-        if len(str(message)) > log_length_limit and allow_hidden:
-            message = str(message)[:log_length_limit] + "..."
+        if len(str(message)) > variable.log_length_limit and allow_hidden:
+            message = str(message)[: variable.log_length_limit] + "..."
         self._logger.info(message)
 
     def warning(self, message):
