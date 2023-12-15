@@ -72,7 +72,7 @@ async def handle(method, source, songId, quality):
 
     if method == "url":
         try:
-            return handleResult(await handleApiRequest(source, songId, quality))
+            return handleResult(await handleApiRequest("url", source, songId, quality))
         except Exception as e:
             logger.error(traceback.format_exc())
             return handleResult({"code": 4, "msg": "内部服务器错误", "data": None}), 500

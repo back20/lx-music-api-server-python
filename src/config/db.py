@@ -18,8 +18,6 @@ if not os.path.exists(DB_DIR):
     except:
         pass
 
-print(DB_DIR)
-
 
 class Cache:
     def __init__(self):
